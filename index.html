@@ -4,235 +4,40 @@
   <meta charset="UTF-8">
   <title>Patient Acuity Tool</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-bottom: 20px;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 10px;
-      vertical-align: top;
-      text-align: left;
-    }
-    th {
-      background-color: #000;
-      color: #fff;
-      text-align: center;
-    }
+    body { font-family: Arial, sans-serif; padding: 30px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #444; padding: 10px; vertical-align: top; }
+    th { background-color: #000; color: #fff; }
     .col-a { background-color: #c6efce; }
     .col-b { background-color: #ffeb9c; }
     .col-c { background-color: #fce4d6; }
     .col-d { background-color: #f4cccc; }
-    td input[type="radio"] {
-      float: right;
-      transform: scale(1.2);
-    }
-    td.label {
-      font-weight: bold;
-      background-color: #f2f2f2;
-    }
-    #total, #acuity {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
+    td.label { font-weight: bold; background-color: #f2f2f2; }
+    input[type="radio"] { float: right; transform: scale(1.2); }
+    #timestampDisplay { font-style: italic; color: gray; margin-top: 10px; }
+    #successMessage {
+      display: none; padding: 10px;
+      background-color: #d4edda; color: #155724;
+      border: 1px solid #c3e6cb; margin-top: 15px;
     }
   </style>
 </head>
 <body>
 
-  <h2>Patient Acuity Tool</h2>
-  <form id="acuityForm">
-    <table>
-      <tr>
-        <th>Indicator</th>
-        <th class="col-a">A</th>
-        <th class="col-b">B</th>
-        <th class="col-c">C</th>
-        <th class="col-d">D</th>
-      </tr>
+<h2>Patient Acuity Tool</h2>
 
-      <!-- Full set of indicators will be added here by script -->
-    </table>
-    <button type="submit">Submit</button>
-  </form>
+<form id="acuityForm">
+  <label for="roomNumber">Room Number:</label>
+  <input type="text" id="roomNumber" name="roomNumber" placeholder="Enter Room #" required>
+  <br><br>
 
-  <p id="total">Total Score: 0</p>
-  <p id="acuity">Acuity Level: N/A</p>
-
-  <script>
-    const indicators = [
-      {
-        name: "Isolation Precautions",
-        levels: [
-          "Standard",
-          "Contact, Droplet",
-          "Airborne, COVID",
-          "Increased Testing – STATS, multiple radiology or lab work"
-        ]
-      },
-      {
-        name: "Safety Awareness",
-        levels: [
-          "Standard Fall Precautions",
-          "Bed AND Seatbelt/Chair Alarm, High Fall Risk",
-          "Bathroom Supervision, Multiple Falls",
-          "Strict Handoff 1:1"
-        ]
-      },
-      {
-        name: "Other",
-        levels: [
-          "Freedom Band, Independence Band",
-          "Sitter",
-          "Elopement Risk",
-          ">3 Provider Notifications, High REACT/Sepsis Alert, Neuro Checks"
-        ]
-      },
-      {
-        name: "Assessment",
-        levels: [
-          "A&O x 3-4",
-          "Confused",
-          "Neuro Checks",
-          "Seizure Precautions"
-        ]
-      },
-      {
-        name: "Psychosocial",
-        levels: [
-          "Calm / Cooperative",
-          "Anxious, Dementia, Frequent Calling Out",
-          "2-Person Buddy, Extensive Education, Admission/Discharge",
-          "Combative, Agitated, High Supervision"
-        ]
-      },
-      {
-        name: "Respiratory",
-        levels: [
-          "Room Air, NC <2L",
-          "NC >2L, CPAP/BiPAP",
-          "Respiratory Treatments",
-          "Trach Care or Suctioning, Treatments >3"
-        ]
-      },
-      {
-        name: "Cardiac",
-        levels: [
-          "BP/HR WNL",
-          "LifeVest, Pacemaker",
-          "Abnormal BP/HR",
-          "Telemetry, Frequent Monitoring"
-        ]
-      },
-      {
-        name: "Feeding",
-        levels: [
-          "Independent, Continuous Tube Feed, Daily Supplement",
-          "Supplement BID, Diner’s Club, Oral Care BID",
-          "Intermittent Feedings 1–3x/day, TPN, 1:1 Feed",
-          "Intermittent Feedings >4/day"
-        ]
-      },
-      {
-        name: "Bowel & Bladder",
-        levels: [
-          "Cueing, Continent, Foley Care",
-          "Incontinent <2x/day, Colostomy, B&B Program",
-          "Incontinent >2x/day, B&B Dependent",
-          "CBI, Cath >2x/shift"
-        ]
-      },
-      {
-        name: "Medications / Therapies",
-        levels: [
-          "PO Med 1–12/day",
-          "PO Med 13–20/day",
-          "IV Medication 1–2/shift",
-          "IV Meds >3/shift, Blood Admin, Crushed Meds"
-        ]
-      },
-      {
-        name: "Pain Management",
-        levels: [
-          "PO q6h, Ice or Heat",
-          "PO q4h, Ice and Heat",
-          "Scheduled + PRN",
-          "Complex Pain Management, IV"
-        ]
-      },
-      {
-        name: "Treatments",
-        levels: [
-          "Simple Dressings, Tubi Grip, Turn Schedule",
-          "HeelMedix, Skin Care, CPM",
-          "VS >q4, Wound Vac, HD/PD",
-          "SCI, Dressing Change >30 min"
-        ]
-      },
-      {
-        name: "Transfers",
-        levels: [
-          "Independent / Supervision",
-          "Partial / Moderate Assistance",
-          "Substantial / Dependent, Mechanical Lifts",
-          "Lift with 2+ Assist"
-        ]
-      }
-    ];
-
-    const table = document.querySelector("table");
-    indicators.forEach((item, index) => {
-      const row = document.createElement("tr");
-      const labelCell = document.createElement("td");
-      labelCell.classList.add("label");
-      labelCell.textContent = item.name;
-      row.appendChild(labelCell);
-
-      item.levels.forEach((level, i) => {
-        const td = document.createElement("td");
-        td.classList.add(`col-${String.fromCharCode(97 + i)}`); // a, b, c, d
-        td.innerHTML = `${level}<input type="radio" name="indicator-${index}" value="${i + 1}">`;
-        row.appendChild(td);
-      });
-
-      table.appendChild(row);
-    });
-
-    const form = document.getElementById("acuityForm");
-    form.addEventListener("change", () => {
-      const radios = form.querySelectorAll('input[type="radio"]');
-      let total = 0;
-      let highest = 0;
-      const selected = {};
-
-      radios.forEach(r => {
-        if (r.checked) {
-          const val = parseInt(r.value);
-          const name = r.name;
-          if (!selected[name]) {
-            total += val;
-            selected[name] = true;
-            if (val > highest) highest = val;
-          }
-        }
-      });
-
-      document.getElementById('total').textContent = `Total Score: ${total}`;
-      const acuityMap = { 1: "A", 2: "B", 3: "C", 4: "D" };
-      document.getElementById('acuity').textContent = highest
-        ? `Acuity Level: ${acuityMap[highest]}`
-        : "Acuity Level: N/A";
-    });
-
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      alert("Form submitted! (You can now link this to a backend like Google Sheets)");
-    });
-  </script>
-</body>
-</html>
+  <table>
+    <tr>
+      <th>Category</th>
+      <th class="col-a">A</th>
+      <th class="col-b">B</th>
+      <th class="col-c">C</th>
+      <th class="col-d">D</th>
+    </tr>
+    <tr>
+      <
